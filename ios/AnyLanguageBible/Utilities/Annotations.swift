@@ -20,16 +20,13 @@ import SwiftUI
 import Combine
 
 enum HighlightColor: String, CaseIterable, Codable, Identifiable {
-    case yellow, green, blue, pink
+    case yellow
 
     var id: String { rawValue }
     var name: String { rawValue.capitalized }
     var color: Color {
         switch self {
         case .yellow: return .yellow
-        case .green:  return .green
-        case .blue:   return .cyan
-        case .pink:   return .pink
         }
     }
 }

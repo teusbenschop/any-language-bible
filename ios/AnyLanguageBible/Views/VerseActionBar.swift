@@ -30,7 +30,7 @@ struct VerseActionBar: View {
         if let range = selection.range {
             let shareText = selection.text(book: book, chapter: chapter)
 
-            HStack(spacing: 12) {
+            HStack(spacing: 30) {
                 ForEach(HighlightColor.allCases) { item in
                     let active = annotations.allHighlighted(item, book: book, chapter: chapter, verses: range)
                     Button {
@@ -51,8 +51,6 @@ struct VerseActionBar: View {
                     .accessibilityLabel("Highlight \(item.name)")
                     .accessibilityAddTraits(active ? .isSelected : [])
                 }
-
-                Divider().frame(height: 22)
 
                 Button {
                     UIPasteboard.general.string = shareText
@@ -76,12 +74,14 @@ struct VerseActionBar: View {
                 }
                 .accessibilityLabel(marked ? "Remove bookmark" : "Bookmark")
 
-                Button {
-                    showNoteEditor = true
-                } label: {
-                    Image(systemName: "square.and.pencil")
-                }
-                .accessibilityLabel("Add note")
+                // The notes editor button was disabled.
+                // It does not save/load anyway.
+//                Button {
+//                    showNoteEditor = true
+//                } label: {
+//                    Image(systemName: "square.and.pencil")
+//                }
+//                .accessibilityLabel("Add note")
 
                 Button {
                     selection.clear()
