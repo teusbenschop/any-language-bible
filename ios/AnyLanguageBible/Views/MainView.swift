@@ -100,7 +100,9 @@ struct MainView: View {
                 currentTab = .read
             })
         case .settings:
-            SettingsView()
+            SettingsView(onSelect: {
+                currentTab = .read
+            })
         }
     }
 

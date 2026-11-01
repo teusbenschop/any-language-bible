@@ -23,6 +23,9 @@ import Foundation
 
 struct SettingsView: View {
 
+    // Called after a Bible has been selected/downloaded.
+    var onSelect: () -> Void
+
     @State private var isLoading = false
     @State private var statusMessage: String?
     @State private var modules: [Module] = loadModulesJson()
@@ -88,7 +91,12 @@ struct SettingsView: View {
                 List(filteredModules) { module in
                     Button {
                         filterFocused = false
-                        Task { await Download.downloadRemoteModule(module: module, isLoading: $isLoading, statusMessage: $statusMessage) }
+                        Task {
+                            let success = await Download.downloadRemoteModule(module: module, isLoading: $isLoading, statusMessage: $statusMessage)
+                            if success {
+                                onSelect()
+                            }
+                        }
                     } label: {
                         HStack {
                             Text(module.name)

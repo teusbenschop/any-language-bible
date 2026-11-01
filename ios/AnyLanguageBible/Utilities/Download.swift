@@ -106,7 +106,7 @@ extension Download {
     static func downloadRemoteModule(module: Module,
                                      isLoading: Binding<Bool>,
                                      statusMessage: Binding<String?>
-    ) async {
+    ) async -> Bool {
         isLoading.wrappedValue = true
         defer { isLoading.wrappedValue = false }
 
@@ -124,11 +124,14 @@ extension Download {
             statusMessage.wrappedValue = "Module was downloaded"
             // Set this module's ID as activated.
             Settings.setVolumeId(module.id)
+            // Success.
+            return true
         } catch let error as Download.NetworkError {
             statusMessage.wrappedValue = error.localizedDescription
         } catch {
             statusMessage.wrappedValue = "Request failed: \(error.localizedDescription)"
         }
+        return false; // Failure.
     }
 }
 
