@@ -46,8 +46,7 @@ enum Download {
         }
     }
 
-    private static let serverAddress = "https://bibledit.org"
-
+    private static let serverUrl = URL(string: "https://bibledit.org/modules")!
 
     // Download the index of available modules as gzipped JSON text.
     static func fetchModulesIndex() async throws -> Data {
@@ -63,26 +62,13 @@ enum Download {
 
 
     private static func fetchData(file: String) async throws -> Data {
-        let baseUrl = try await securedBaseUrl()
-        let (data, response) = try await URLSession.shared.data(from: baseUrl.appending(path: file))
+        let (data, response) = try await URLSession.shared.data(from: serverUrl.appending(path: file))
         guard let http = response as? HTTPURLResponse,
               (200..<300).contains(http.statusCode) else {
             throw NetworkError.serverError
         }
         return data
     }
-
-
-    // The server address followed by the security prefix that changes every day.
-    // The calculation on this client matches the calculation on the server.
-    private static func securedBaseUrl() async throws -> URL {
-        guard let url = URL(string: serverAddress) else {
-            throw NetworkError.invalidServerAddress
-        }
-        return url.appending(path: "modules")
-    }
-
-
 }
 
 extension Download {

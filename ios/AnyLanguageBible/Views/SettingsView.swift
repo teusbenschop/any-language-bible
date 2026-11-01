@@ -35,22 +35,10 @@ struct SettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
 
-            Button(role: .destructive) {
-                eraseAllData()
-                modules = loadModulesJson()
-                statusMessage = nil
-            } label: {
-                Label(String(localized: "Immediately wipe all modules"),
-                      systemImage: "exclamationmark.triangle.fill")
-                .font(.title3)
-            }
-            .buttonStyle(.borderedProminent)
-            .disabled(isLoading)
-
             VStack(spacing: 12) {
                 Button(modules.isEmpty
-                       ? String(localized: "Securely download list of modules")
-                       : String(localized: "Securely update list of modules")) {
+                       ? String(localized: "Download list of modules")
+                       : String(localized: "Update list of modules")) {
                     Task { await Download.downloadModuleList(isLoading: $isLoading, statusMessage: $statusMessage, modules: $modules) }
                 }
                 .disabled(isLoading)
