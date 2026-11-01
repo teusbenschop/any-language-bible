@@ -28,8 +28,6 @@ import WebKit
 
 struct MainView: View {
 
-    @AppStorage("hasBeenSetup") private var hasBeenSetup: Bool = true // Todo set to false to develop it.
-
     @EnvironmentObject private var status: Status
 
     @State private var currentTab: BibleTab = .read
@@ -57,10 +55,6 @@ struct MainView: View {
                 .toolbar { toolbarContent }
                 .sheet(isPresented: $showPassagePicker) { passagePicker }
                 .sheet(isPresented: $showNoteEditor) { noteEditor }
-                .fullScreenCover(isPresented: Binding( // Todo make this.
-                    get: { !hasBeenSetup },
-                    set: { if !$0 { hasBeenSetup = true } }
-                                                     )) { SetupView() }
                 .task { }
                 .onAppear() { }
 
