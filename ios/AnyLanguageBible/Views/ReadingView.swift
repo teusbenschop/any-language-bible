@@ -43,6 +43,9 @@ struct ReadingView: View {
     @EnvironmentObject var verseSelection: VerseSelection
 
     @State private var verses: [BibleVerse] = []
+    // False until the first load has finished, so the empty state doesn't flash at startup.
+    @State private var hasLoaded = false
+
     @State private var fontSize: Double = 18
     // Briefly highlighted after jumping to a verse.
     @State private var highlightedVerse: Int? = nil
@@ -60,26 +63,38 @@ struct ReadingView: View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 4) {
-                    ForEach(verses, id: \.verse) { verse in
-                        // Superscript-style verse number followed by the text.
-                        let number = Text("\(verse.verse) ")
-                            .font(.system(size: fontSize * 0.6))
-                            .baselineOffset(fontSize * 0.4)
-                            .foregroundStyle(.secondary)
-                        Text("\(number)\(verse.text)")
-                            .font(.system(size: fontSize, design: .serif))
-                        // Full-width row, so the whole line is tappable and highlights evenly.
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.vertical, 4)
-                            .padding(.horizontal, 4)
-                            .background(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(highlightedVerse == verse.verse
-                                          ? Color.accentColor.opacity(0.25)
-                                          : Color.clear)
-                            )
-                            .verseInteraction(verse: verse.verse, book: book, chapter: chapter)
-                            .id(verse.verse)
+                    if hasLoaded && verses.isEmpty {
+                        ContentUnavailableView {
+                            Label(String(localized: "No Bible yet"), systemImage: "books.vertical")
+                        } description: {
+                            Spacer()
+                            Text(String(localized: "To start reading, follow these steps:"))
+                            Text(String(localized: "1. Tap Settings at the bottom."))
+                            Text(String(localized: "2. Download list of modules."))
+                            Text(String(localized: "3. Download the Bible of your choice."))
+                        }
+                    } else {
+                        ForEach(verses, id: \.verse) { verse in
+                            // Superscript-style verse number followed by the text.
+                            let number = Text("\(verse.verse) ")
+                                .font(.system(size: fontSize * 0.6))
+                                .baselineOffset(fontSize * 0.4)
+                                .foregroundStyle(.secondary)
+                            Text("\(number)\(verse.text)")
+                                .font(.system(size: fontSize, design: .serif))
+                            // Full-width row, so the whole line is tappable and highlights evenly.
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.vertical, 4)
+                                .padding(.horizontal, 4)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 6)
+                                        .fill(highlightedVerse == verse.verse
+                                              ? Color.accentColor.opacity(0.25)
+                                              : Color.clear)
+                                )
+                                .verseInteraction(verse: verse.verse, book: book, chapter: chapter)
+                                .id(verse.verse)
+                        }
                     }
                 }
                 .scrollTargetLayout()
@@ -114,6 +129,7 @@ struct ReadingView: View {
                 let chapter = chapter
 
                 verses = getChapterVerses(id: volumeId, book: bookNumber, chapter: chapter)
+                hasLoaded = true
 
                 verseSelection.verseTexts = Dictionary(
                     uniqueKeysWithValues: convertToTuples(verses).map { ($0.number, $0.text) }
