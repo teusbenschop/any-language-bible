@@ -18,7 +18,6 @@
 
 import SwiftUI
 import Foundation
-import CryptoKit
 
 
 
@@ -112,9 +111,7 @@ struct SettingsView: View {
                 }
             }
         }
-        Spacer()
     }
-
 
 
     private var filteredModules: [Module] {
