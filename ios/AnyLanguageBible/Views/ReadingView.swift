@@ -120,15 +120,31 @@ struct ReadingView: View {
                 let volumeId = Settings.getVolumeId()
 
                 // The book number may be nil in case of unknown book name.
-                guard let bookNumber = bookid(forName: book) else {
+                guard var bookNumber = bookid(forName: book) else {
                     verses = []
                     verseSelection.verseTexts = [:]
                     return
                 }
 
+                // The focused book may not exist in the current module.
+                // This may happen when switching to another module,
+                // and this module does not have all book that were in the former module.
+                // So here look for the book in the module nearest to the focused book.
+                // Todo
+                guard let nearestBook = getNearestBook(id: volumeId, book: bookNumber) else {
+                    verses = []
+                    verseSelection.verseTexts = [:]
+                    return
+                }
+                if nearestBook != bookNumber {
+                    bookNumber = nearestBook
+                    book = bookName(forId: bookNumber) ?? ""
+                    chapter = 1
+                }
+
                 let chapter = chapter
 
-                verses = getChapterVerses(id: volumeId, book: bookNumber, chapter: chapter)
+                verses = getVerses(id: volumeId, book: bookNumber, chapter: chapter)
                 hasLoaded = true
 
                 verseSelection.verseTexts = Dictionary(

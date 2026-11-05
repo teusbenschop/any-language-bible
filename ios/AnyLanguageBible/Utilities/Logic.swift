@@ -48,13 +48,36 @@ private let bibleCache = BibleCache()
 
 
 
-// Returns the verses of the given book and chapter.
-func getChapterVerses(id: Int, book: Int, chapter: Int) -> [BibleVerse] {
+// Returns the verses of the given module / book / chapter.
+func getVerses(id: Int, book: Int, chapter: Int) -> [BibleVerse] {
     bibleCache.bible(id: id)
         .filter { $0.book == book && $0.chapter == chapter }
         .sorted { $0.verse < $1.verse }
 }
 
+
+// Returns the book in the given module nearest to the book passed. May be nil.
+func getNearestBook(id: Int, book: Int) -> Int? {
+    var nearest: Int?
+    var nearestDistance = Int.max
+
+    for verse in bibleCache.bible(id: id) {
+        let candidate = verse.book
+        let distance = abs(candidate - book)
+
+        // Exact match: nothing can be nearer.
+        if distance == 0 { return candidate }
+
+        // Closer wins; on a tie, prefer the lower book number.
+        if distance < nearestDistance
+            || (distance == nearestDistance && candidate < (nearest ?? Int.max)) {
+            nearest = candidate
+            nearestDistance = distance
+        }
+    }
+
+    return nearest
+}
 
 
 // Converts BibleVerse values into (number, text) tuples, ordered by verse number.
