@@ -125,9 +125,10 @@ func loadModuleJson(id: Int) -> [BibleVerse] {
                                                     in: .userDomainMask,
                                                     appropriateFor: nil,
                                                     create: false)
+        print(directory)
         let data = try Data(contentsOf: directory.appendingPathComponent("\(id).json"))
         let decoder = JSONDecoder()
-        decoder.allowsJSON5 = true // // Tolerate trailing commas.
+        decoder.allowsJSON5 = true // Tolerate trailing commas.
         return try decoder.decode(BibleFile.self, from: data).data
     } catch {
         print("Failed to load \(id).json: \(error)")

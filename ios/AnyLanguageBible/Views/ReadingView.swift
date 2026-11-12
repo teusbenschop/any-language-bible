@@ -116,6 +116,9 @@ struct ReadingView: View {
                 let key = scrollKey
                 restoredFor = nil
                 topVerse = nil
+                defer {
+                    hasLoaded = true
+                }
 
                 let volumeId = Settings.getVolumeId()
 
@@ -142,10 +145,7 @@ struct ReadingView: View {
                     chapter = 1
                 }
 
-                let chapter = chapter
-
                 verses = getVerses(id: volumeId, book: bookNumber, chapter: chapter)
-                hasLoaded = true
 
                 verseSelection.verseTexts = Dictionary(
                     uniqueKeysWithValues: convertToTuples(verses).map { ($0.number, $0.text) }

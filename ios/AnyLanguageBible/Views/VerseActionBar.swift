@@ -102,7 +102,7 @@ struct VerseActionBar: View {
     }
 }
 
-/// Apply to the view that draws one verse in ReadingView.
+// Apply to the view that draws one verse in ReadingView.
 struct VerseInteraction: ViewModifier {
     @EnvironmentObject var selection: VerseSelection
     @EnvironmentObject var annotations: AnnotationStore
