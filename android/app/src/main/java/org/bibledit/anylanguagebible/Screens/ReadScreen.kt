@@ -62,9 +62,6 @@ class VerseSelection {
     var verseTexts: Map<Int, String> by mutableStateOf(emptyMap())
 }
 
-private val FONT_SIZE = 18.sp
-private const val MAX_STORED_POSITIONS = 10
-private const val RECENT_KEYS_KEY = "readingScroll.recentKeys"
 
 @Composable
 fun ReadScreen(
@@ -258,7 +255,7 @@ private fun VerseRow(
     book: String,
     chapter: Int,
     highlighted: Boolean,
-    fontSize: TextUnit = FONT_SIZE
+    fontSize: TextUnit = 20.sp
 ) {
     val highlight by animateColorAsState(
         targetValue = if (highlighted) {
@@ -303,7 +300,8 @@ private fun VerseRow(
 private fun savePosition(prefs: SharedPreferences, verse: Int, key: String) {
     // Ordered list of the keys that hold a saved position, oldest first.
     // SharedPreferences has no ordered list, so the keys are joined with newlines.
-    val recent = prefs.getString(RECENT_KEYS_KEY, "")
+    val recent_keys_key = "readingScroll.recentKeys"
+    val recent = prefs.getString(recent_keys_key, "")
         .orEmpty()
         .split('\n')
         .filter { it.isNotEmpty() }
@@ -316,10 +314,11 @@ private fun savePosition(prefs: SharedPreferences, verse: Int, key: String) {
     if (recent.lastOrNull() != key) {
         recent.removeAll { it == key }
         recent.add(key)
-        while (recent.size > MAX_STORED_POSITIONS) {
+        val max_stored_positions = 10
+        while (recent.size > max_stored_positions) {
             editor.remove(recent.removeAt(0))
         }
-        editor.putString(RECENT_KEYS_KEY, recent.joinToString("\n"))
+        editor.putString(recent_keys_key, recent.joinToString("\n"))
     }
 
     editor.putInt(key, verse)

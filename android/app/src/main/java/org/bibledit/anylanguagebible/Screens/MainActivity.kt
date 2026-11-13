@@ -61,7 +61,7 @@ enum class AppTab(
 
 @Composable
 fun MainScreen() {
-    // Remembers the selected tab, also across rotation and process death.
+    // Remembers the selected tab across rotation and activity recreation.
     var selectedTab by rememberSaveable { mutableStateOf(AppTab.Read) }
 
     // State for the Read screen.
@@ -114,13 +114,3 @@ fun MainScreen() {
         }
     }
 }
-
-
-
-@Composable
-fun SearchScreen() { Text("Search") }
-
-@Composable
-fun BookmarksScreen() { Text("Bookmarks") }
-
-
