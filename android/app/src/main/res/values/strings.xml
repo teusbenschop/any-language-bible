@@ -5,4 +5,9 @@
     <string name="filter_modules">Filter modules</string>
     <string name="no_matches">No matches</string>
     <string name="clear">Clear</string>
+    <string name="no_bible_yet">No Bible yet</string>
+    <string name="read_step_intro">To start reading, follow these steps:</string>
+    <string name="read_step_1">1. Tap Settings at the bottom.</string>
+    <string name="read_step_2">2. Download list of modules.</string>
+    <string name="read_step_3">3. Download the Bible of your choice.</string>
 </resources>

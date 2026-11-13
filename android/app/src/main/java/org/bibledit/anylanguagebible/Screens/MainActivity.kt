@@ -23,7 +23,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -62,6 +64,12 @@ fun MainScreen() {
     // Remembers the selected tab, also across rotation and process death.
     var selectedTab by rememberSaveable { mutableStateOf(AppTab.Read) }
 
+    // State for the Read screen.
+    var book by rememberSaveable { mutableStateOf("Genesis") }
+    var chapter by rememberSaveable { mutableIntStateOf(1) }
+    var focusedVerse by rememberSaveable { mutableStateOf<Int?>(null) }
+    val verseSelection = remember { VerseSelection() }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -89,7 +97,15 @@ fun MainScreen() {
         ) {
             // Swap in the screen for the selected tab.
             when (selectedTab) {
-                AppTab.Read -> ReadScreen()
+                AppTab.Read -> ReadScreen(
+                    book = book,
+                    onBookChange = { book = it },
+                    chapter = chapter,
+                    onChapterChange = { chapter = it },
+                    focusedVerse = focusedVerse,
+                    onFocusedVerseChange = { focusedVerse = it },
+                    verseSelection = verseSelection
+                )
                 AppTab.Search -> SearchScreen()
                 AppTab.Bookmarks -> BookmarksScreen()
                 AppTab.Settings -> SettingsScreen(
@@ -99,9 +115,7 @@ fun MainScreen() {
     }
 }
 
-// Placeholder screens. Replace these with your real content.
-@Composable
-fun ReadScreen() { Text("Read") }
+
 
 @Composable
 fun SearchScreen() { Text("Search") }
