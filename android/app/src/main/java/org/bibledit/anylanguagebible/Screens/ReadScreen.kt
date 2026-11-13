@@ -51,6 +51,10 @@ import kotlinx.coroutines.withContext
 import org.bibledit.anylanguagebible.R
 import org.bibledit.anylanguagebible.Utilities.BibleVerse
 import org.bibledit.anylanguagebible.Utilities.Settings.getVolumeId
+import org.bibledit.anylanguagebible.Utilities.bookId
+import org.bibledit.anylanguagebible.Utilities.bookName
+import org.bibledit.anylanguagebible.Utilities.getNearestBook
+import org.bibledit.anylanguagebible.Utilities.getVerses
 
 // Replaces the SwiftUI @EnvironmentObject. Pass one instance down from the parent.
 @Stable
@@ -113,12 +117,10 @@ fun ReadScreen(
         val key = scrollKey
         restoredFor = null
 
-        //val volumeId = getVolumeId(context) // Todo
         val volumeId = getVolumeId()
 
         // The book number may be null in case of unknown book name.
-//        val bookNumber = bookId(book) // Todo
-        val bookNumber = 1
+        val bookNumber = bookId(book) // Todo
         if (bookNumber == null) {
             verses = emptyList()
             verseSelection.verseTexts = emptyMap()
@@ -130,8 +132,7 @@ fun ReadScreen(
         // This may happen when switching to another module,
         // and this module does not have all books that were in the former module.
         // So here look for the book in the module nearest to the focused book.
-//        val nearestBook = withContext(Dispatchers.IO) { getNearestBook(volumeId, bookNumber) }
-        val nearestBook = bookNumber // Todo
+        val nearestBook = withContext(Dispatchers.IO) { getNearestBook(context, volumeId, bookNumber) }
         if (nearestBook == null) {
             verses = emptyList()
             verseSelection.verseTexts = emptyMap()
@@ -140,18 +141,18 @@ fun ReadScreen(
         }
         if (nearestBook != bookNumber) {
             // Changing book and chapter restarts this effect, which then loads the new chapter.
-//            onBookChange(bookName(nearestBook) ?: "")
+            onBookChange(bookName(nearestBook) ?: "")
             onBookChange("Genesis") // Todo fix.
             onChapterChange(1)
             return@LaunchedEffect
         }
 
         // Todo fix this.
-//        val loaded = withContext(Dispatchers.IO) { getVerses(volumeId, bookNumber, chapter) }
-//        verses = loaded
-//        verseSelection.verseTexts = loaded.associate { it.verse to it.text }
-//        hasLoaded = true
-//        listState.scrollToItem(0) // Forget the position of the previous chapter.
+        val loaded = withContext(Dispatchers.IO) { getVerses(context, volumeId, bookNumber, chapter) }
+        verses = loaded
+        verseSelection.verseTexts = loaded.associate { it.verse to it.text }
+        hasLoaded = true
+        listState.scrollToItem(0) // Forget the position of the previous chapter.
 
         // Jump to the verse requested by a bookmark, if any.
         var bookmarkTarget: Int? = null
@@ -162,27 +163,27 @@ fun ReadScreen(
             // Give the layout a moment to place the new rows.
             delay(80)
             // Todo fix this.
-//            val index = loaded.indexOfFirst { it.verse == target }
-//            if (index >= 0) {
-//                // Negative offset puts the verse roughly in the middle of the screen.
-//                listState.animateScrollToItem(index, -listState.layoutInfo.viewportSize.height / 2)
-//                highlightedVerse = target
-//            }
+            val index = loaded.indexOfFirst { it.verse == target }
+            if (index >= 0) {
+                // Negative offset puts the verse roughly in the middle of the screen.
+                listState.animateScrollToItem(index, -listState.layoutInfo.viewportSize.height / 2)
+                highlightedVerse = target
+            }
         } else {
             // Restore the saved position, or start at the top of a new chapter.
             // Todo fix.
-//            val saved = if (prefs.contains(key)) prefs.getInt(key, 0) else null
-//            val destination = if (saved != null && loaded.any { it.verse == saved }) {
-//                saved
-//            } else {
-//                loaded.firstOrNull()?.verse
-//            }
+            val saved = if (prefs.contains(key)) prefs.getInt(key, 0) else null
+            val destination = if (saved != null && loaded.any { it.verse == saved }) {
+                saved
+            } else {
+                loaded.firstOrNull()?.verse
+            }
             delay(80)
             // Todo fix this.
-//            if (destination != null) {
-//                val index = loaded.indexOfFirst { it.verse == destination }
-//                if (index >= 0) listState.scrollToItem(index)
-//            }
+            if (destination != null) {
+                val index = loaded.indexOfFirst { it.verse == destination }
+                if (index >= 0) listState.scrollToItem(index)
+            }
         }
 
         // From here on, scroll changes are the user's and may be saved.
