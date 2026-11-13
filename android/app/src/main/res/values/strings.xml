@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Any Language Bible</string>
+    <string name="download_list_of_modules">Download list of modules</string>
+    <string name="update_list_of_modules">Update list of modules</string>
+    <string name="filter_modules">Filter modules</string>
+    <string name="no_matches">No matches</string>
+    <string name="clear">Clear</string>
 </resources>

@@ -1,4 +1,4 @@
-package org.bibledit.anylanguagebible
+package org.bibledit.anylanguagebible.Screens
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -26,15 +26,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
 import org.bibledit.anylanguagebible.ui.theme.AnyLanguageBibleTheme
+import org.bibledit.anylanguagebible.Utilities.Settings
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Settings.init(applicationContext)
         enableEdgeToEdge()
         setContent {
             AnyLanguageBibleTheme {
@@ -86,14 +86,14 @@ fun MainScreen() {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding),
-            contentAlignment = Alignment.Center
         ) {
             // Swap in the screen for the selected tab.
             when (selectedTab) {
                 AppTab.Read -> ReadScreen()
                 AppTab.Search -> SearchScreen()
                 AppTab.Bookmarks -> BookmarksScreen()
-                AppTab.Settings -> SettingsScreen()
+                AppTab.Settings -> SettingsScreen(
+                    onSelect = { selectedTab = AppTab.Read })
             }
         }
     }
@@ -109,6 +109,4 @@ fun SearchScreen() { Text("Search") }
 @Composable
 fun BookmarksScreen() { Text("Bookmarks") }
 
-@Composable
-fun SettingsScreen() { Text("Settings") }
 
