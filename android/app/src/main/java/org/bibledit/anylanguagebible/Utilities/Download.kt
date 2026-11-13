@@ -11,32 +11,32 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.zip.GZIPInputStream
 
-private const val TAG = "Download"
-
 
 object Download {
 
     sealed class NetworkError(message: String) : Exception(message) {
-        object InvalidServerAddress : NetworkError(
+        class InvalidServerAddress : NetworkError(
             "Could not refresh remote modules due to an invalid web address for the modules server"
         )
-        object InvalidResponse : NetworkError(
+
+        class InvalidResponse : NetworkError(
             "Got invalid response from the modules server"
         )
-        object MissingDateHeader : NetworkError(
+
+        class MissingDateHeader : NetworkError(
             "Could not retrieve relevant information from the modules server"
         )
-        object ServerError : NetworkError(
+
+        class ServerError : NetworkError(
             "Download failed with a server error"
         )
-        object NotUtf8 : NetworkError(
+
+        class NotUtf8 : NetworkError(
             "Modules file is not valid UTF-8 text"
         )
     }
 
     class GunzipException(message: String) : Exception(message)
-
-    private const val SERVER_URL = "https://bibledit.org/modules"
 
     // Download the index of available modules as gzipped JSON text.
     suspend fun fetchModulesIndex(): ByteArray = fetchData("modules.json.gz")
@@ -47,22 +47,21 @@ object Download {
 
     private suspend fun fetchData(file: String): ByteArray = withContext(Dispatchers.IO) {
         val url = try {
-            URL("$SERVER_URL/$file")
+            URL("https://bibledit.org/modules/$file")
         } catch (e: java.net.MalformedURLException) {
-            throw NetworkError.InvalidServerAddress
+            throw NetworkError.InvalidServerAddress()
         }
         val connection = url.openConnection() as HttpURLConnection
         try {
             connection.connectTimeout = 15_000
             connection.readTimeout = 30_000
             val code = connection.responseCode
-            if (code !in 200..299) throw NetworkError.ServerError
+            if (code !in 200..299) throw NetworkError.ServerError()
             connection.inputStream.use { it.readBytes() }
         } finally {
             connection.disconnect()
         }
     }
-
 
 
     // Download the module list and report progress through the callbacks.
@@ -144,7 +143,7 @@ object Download {
 
     // Takes gzip-compressed bytes and returns the decompressed bytes.
     // Java's GZIPInputStream handles the gzip header, the DEFLATE stream and the trailer.
-    // No preprocessing is needed unlike in Swift.
+    // No preprocessing needed.
     fun gunzip(input: ByteArray): ByteArray {
         try {
             return GZIPInputStream(ByteArrayInputStream(input)).use { it.readBytes() }

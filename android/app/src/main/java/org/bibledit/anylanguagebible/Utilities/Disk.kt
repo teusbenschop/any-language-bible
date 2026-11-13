@@ -44,20 +44,19 @@ fun eraseAllData(context: Context) {
 
 
 fun saveModulesJson(context: Context, data: ByteArray) {
-    val tag = "SaveModulesJson"
+    // Atomic write: A crash halfway does not leave a half-written modules.json behind.
+    val file = File(context.filesDir, "modules.json")
+    val atomicFile = AtomicFile(file)
+    var stream: java.io.FileOutputStream? = null
     try {
-        val directory = context.filesDir
-        val file = File(directory, "modules.json")
-        // Atomic write: write to a temporary file first, then rename it over the real file.
-        // A crash halfway can then never leave a half-written modules.json behind.
-        val temporary = File(directory, "modules.json.tmp")
-        temporary.writeBytes(data)
-        if (!temporary.renameTo(file)) {
-            temporary.delete()
-            throw java.io.IOException("Could not rename the temporary file")
-        }
+        file.parentFile?.mkdirs()
+        stream = atomicFile.startWrite()
+        stream.write(data)
+        atomicFile.finishWrite(stream) // Syncs and commits the writing.
     } catch (e: Exception) {
-        Log.e(tag, "Failed to save the module", e)
+        if (stream != null)
+            atomicFile.failWrite(stream) // Keeps the old file intact.
+        Log.e("SaveModulesJson", "Failed to save the module", e)
     }
 }
 
@@ -91,19 +90,19 @@ fun loadModulesJson(context: Context): List<Module> {
 
 
 fun saveModuleJson(context: Context, id: Int, data: ByteArray) {
+    // Atomic write: A crash halfway does not leave a half-written modules.json behind.
+    val file = File(context.filesDir, "$id.json")
+    val atomicFile = AtomicFile(file)
+    var stream: java.io.FileOutputStream? = null
     try {
-        val directory = context.filesDir
-        val file = File(directory, "$id.json")
-        // Atomic write: write to a temporary file first, then rename it over the real file.
-        val temporary = File(directory, "$id.json.tmp")
-        temporary.writeBytes(data)
-        if (!temporary.renameTo(file)) {
-            temporary.delete()
-            throw IOException("Could not rename the temporary file")
-        }
+        file.parentFile?.mkdirs() // create: true
+        stream = atomicFile.startWrite()
+        stream.write(data)
+        atomicFile.finishWrite(stream) // Syncs and commits the writing.
     } catch (e: Exception) {
-        val tag = "SaveModuleJson"
-        Log.e(tag, "Failed to save the module", e)
+        if (stream != null)
+            atomicFile.failWrite(stream) // Keeps the old file intact.
+        Log.e("SaveModuleJson", "Failed to save the module", e)
     }
 }
 
@@ -186,9 +185,6 @@ fun caseFoldedJson(verses: List<BibleVerse>): ByteArray? {
 }
 
 
-// Strict decoder: the folded file is written by us as plain JSON.
-private val foldedDecoder = Json { ignoreUnknownKeys = true } // Todo remove this and use the above one. Once everything works.
-
 
 fun saveCaseFoldedModule(context: Context, id: Int, verses: List<BibleVerse>) {
     val json = caseFoldedJson(verses) ?: return
@@ -199,9 +195,10 @@ fun saveCaseFoldedModule(context: Context, id: Int, verses: List<BibleVerse>) {
         file.parentFile?.mkdirs() // create: true
         stream = atomicFile.startWrite()
         stream.write(json)
-        atomicFile.finishWrite(stream) // Syncs and commits the writing. // Todo use this above too? Test once everything works.
+        atomicFile.finishWrite(stream) // Syncs and commits the writing.
     } catch (e: Exception) {
-        if (stream != null) atomicFile.failWrite(stream) // Keeps the old file intact.
+        if (stream != null)
+            atomicFile.failWrite(stream) // Keeps the old file intact.
         Log.e("saveCaseFoldedModule", "Failed to save $id-folded.json: $e")
     }
 }
@@ -211,7 +208,7 @@ fun loadFoldedModuleJson(context: Context, id: Int): List<BibleVerse> {
     return try {
         val file = File(context.filesDir, "$id-folded.json")
         val text = file.readText()
-        foldedDecoder.decodeFromString(ListSerializer(BibleVerse.serializer()), text)
+        json.decodeFromString(ListSerializer(BibleVerse.serializer()), text)
     } catch (e: Exception) {
         Log.e("loadFoldedModuleJson", "Failed to load $id-folded.json: $e")
         emptyList()

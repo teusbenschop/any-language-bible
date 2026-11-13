@@ -120,7 +120,7 @@ fun ReadScreen(
         val volumeId = getVolumeId()
 
         // The book number may be null in case of unknown book name.
-        val bookNumber = bookId(book) // Todo
+        val bookNumber = bookId(book)
         if (bookNumber == null) {
             verses = emptyList()
             verseSelection.verseTexts = emptyMap()
@@ -142,12 +142,10 @@ fun ReadScreen(
         if (nearestBook != bookNumber) {
             // Changing book and chapter restarts this effect, which then loads the new chapter.
             onBookChange(bookName(nearestBook) ?: "")
-            onBookChange("Genesis") // Todo fix.
             onChapterChange(1)
             return@LaunchedEffect
         }
 
-        // Todo fix this.
         val loaded = withContext(Dispatchers.IO) { getVerses(context, volumeId, bookNumber, chapter) }
         verses = loaded
         verseSelection.verseTexts = loaded.associate { it.verse to it.text }
@@ -162,7 +160,6 @@ fun ReadScreen(
             bookmarkTarget = target
             // Give the layout a moment to place the new rows.
             delay(80)
-            // Todo fix this.
             val index = loaded.indexOfFirst { it.verse == target }
             if (index >= 0) {
                 // Negative offset puts the verse roughly in the middle of the screen.
@@ -171,7 +168,6 @@ fun ReadScreen(
             }
         } else {
             // Restore the saved position, or start at the top of a new chapter.
-            // Todo fix.
             val saved = if (prefs.contains(key)) prefs.getInt(key, 0) else null
             val destination = if (saved != null && loaded.any { it.verse == saved }) {
                 saved
@@ -179,7 +175,6 @@ fun ReadScreen(
                 loaded.firstOrNull()?.verse
             }
             delay(80)
-            // Todo fix this.
             if (destination != null) {
                 val index = loaded.indexOfFirst { it.verse == destination }
                 if (index >= 0) listState.scrollToItem(index)
