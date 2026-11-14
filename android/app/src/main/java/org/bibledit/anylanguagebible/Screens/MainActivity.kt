@@ -4,23 +4,31 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,8 +36,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import org.bibledit.anylanguagebible.Utilities.Disk
 import org.bibledit.anylanguagebible.ui.theme.AnyLanguageBibleTheme
 import org.bibledit.anylanguagebible.Utilities.Settings
@@ -61,6 +71,7 @@ enum class AppTab(
     Settings("Settings", Icons.Outlined.Settings, Icons.Filled.Settings)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen() {
     // Remembers the selected tab across rotation and activity recreation.
@@ -72,8 +83,32 @@ fun MainScreen() {
     var focusedVerse by rememberSaveable { mutableStateOf<Int?>(null) }
     val verseSelection = remember { VerseSelection() }
 
+    // Whether the passage picker is showing.
+    var showPassagePicker by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    if (selectedTab == AppTab.Read) {
+                        // Tappable title on the Read tab; plain title elsewhere.
+                        Row(
+                            modifier = Modifier.clickable(
+                                onClickLabel = "Opens the book and chapter picker"
+                            ) { showPassagePicker = true },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("$book $chapter")
+                            Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null)
+                        }
+                    } else {
+                        Text(selectedTab.label)
+                    }
+                }
+            )
+        },
         bottomBar = {
             NavigationBar {
                 AppTab.entries.forEach { tab ->
@@ -113,6 +148,24 @@ fun MainScreen() {
                 AppTab.Settings -> SettingsScreen(
                     onSelect = { selectedTab = AppTab.Read })
             }
+        }
+    }
+
+    // The passage picker, shown as a sheet.
+    if (showPassagePicker) {
+        ModalBottomSheet(
+            onDismissRequest = { showPassagePicker = false },
+            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        ) {
+            PassagePickerScreen(
+                book = book,
+                chapter = chapter,
+                onSelect = { selectedBook, selectedChapter ->
+                    book = selectedBook
+                    chapter = selectedChapter
+                },
+                onDismiss = { showPassagePicker = false }
+            )
         }
     }
 }
