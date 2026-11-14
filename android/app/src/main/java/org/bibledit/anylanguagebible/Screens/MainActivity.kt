@@ -40,6 +40,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import org.bibledit.anylanguagebible.Utilities.AnnotationStore
 import org.bibledit.anylanguagebible.Utilities.Disk
 import org.bibledit.anylanguagebible.ui.theme.AnyLanguageBibleTheme
 import org.bibledit.anylanguagebible.Utilities.Settings
@@ -85,6 +87,8 @@ fun MainScreen() {
 
     // Whether the passage picker is showing.
     var showPassagePicker by rememberSaveable { mutableStateOf(false) }
+
+    val annotationStore: AnnotationStore = viewModel()
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -148,6 +152,18 @@ fun MainScreen() {
                 AppTab.Settings -> SettingsScreen(
                     onSelect = { selectedTab = AppTab.Read })
             }
+
+            if (selectedTab == AppTab.Read && verseSelection.isActive) {
+                VerseActionBar(
+                    selection = verseSelection,
+                    annotations = annotationStore,
+                    book = book,
+                    chapter = chapter,
+                    modifier = Modifier.align(Alignment.BottomCenter)
+                )
+            }
+
+
         }
     }
 
