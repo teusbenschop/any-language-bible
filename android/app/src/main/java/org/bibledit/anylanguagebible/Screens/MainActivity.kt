@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import org.bibledit.anylanguagebible.Utilities.Disk
 import org.bibledit.anylanguagebible.ui.theme.AnyLanguageBibleTheme
 import org.bibledit.anylanguagebible.Utilities.Settings
 
@@ -37,6 +38,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Settings.init(applicationContext)
+        Disk.init(applicationContext)
         enableEdgeToEdge()
         setContent {
             AnyLanguageBibleTheme {

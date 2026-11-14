@@ -3,7 +3,6 @@ package org.bibledit.anylanguagebible.Utilities
 import android.content.Context
 import kotlin.math.abs
 import org.bibledit.anylanguagebible.Utilities.BibleVerse
-import org.bibledit.anylanguagebible.Utilities.loadModuleJson
 
 // Cache: module id -> entire Bible as a flat list of verses.
 // The lock makes access safe from several threads,
@@ -16,7 +15,7 @@ private object BibleCache {
     // Returns an empty list if loading fails (failures are not cached).
     fun bible(context: Context, id: Int): List<BibleVerse> = synchronized(lock) {
         storage[id]?.let { return@synchronized it }
-        val entireBible = loadModuleJson(context, id)
+        val entireBible = Disk.loadModuleJson(id)
         if (entireBible.isEmpty())
             return@synchronized emptyList()
         storage[id] = entireBible

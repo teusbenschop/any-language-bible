@@ -68,7 +68,6 @@ object Download {
     // Call this from a coroutine on the main thread: the callbacks update the UI.
     // The network and file work is moved to a background thread inside.
     suspend fun downloadModuleList(
-        context: Context,
         setLoading: (Boolean) -> Unit,
         setStatusMessage: (String?) -> Unit,
         setModules: (List<Module>) -> Unit
@@ -81,8 +80,8 @@ object Download {
                 val modules = withContext(Dispatchers.IO) {
                     val json = gunzip(gzipped)
                     // Save the text to disk and load it again as parsed JSON.
-                    saveModulesJson(context,json)
-                    loadModulesJson(context)
+                    Disk.saveModulesJson(json)
+                    Disk.loadModulesJson()
                 }
                 setModules(modules)
                 setStatusMessage("Number of available modules: ${modules.size}")
@@ -102,7 +101,6 @@ object Download {
 
     // Download one module. Returns true on success.
     suspend fun downloadRemoteModule(
-        context: Context,
         module: Module,
         setLoading: (Boolean) -> Unit,
         setStatusMessage: (String?) -> Unit
@@ -116,10 +114,10 @@ object Download {
                 withContext(Dispatchers.IO) {
                     val json = gunzip(gzipped)
                     // Save the JSON to file.
-                    saveModuleJson(context, module.id, json)
+                    Disk.saveModuleJson(module.id, json)
                     // Load the module JSON, parse it, create case folded JSON and save that.
-                    val verses = loadModuleJson(context, module.id)
-                    saveCaseFoldedModule(context, module.id, verses)
+                    val verses = Disk.loadModuleJson(module.id)
+                    Disk.saveCaseFoldedModule(module.id, verses)
                 }
                 setStatusMessage("Module was downloaded")
                 // Set this module's ID as activated.
@@ -148,7 +146,7 @@ object Download {
         try {
             return GZIPInputStream(ByteArrayInputStream(input)).use { it.readBytes() }
         } catch (e: IOException) {
-            throw GunzipException("Invalid gzip data")
+            throw GunzipException("Invalid gzip data: " + e.message)
         }
     }
 

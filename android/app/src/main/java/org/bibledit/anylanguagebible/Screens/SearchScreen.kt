@@ -1,5 +1,7 @@
 package org.bibledit.anylanguagebible.Screens
 
+import android.app.Application
+import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,11 +30,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +44,10 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import org.bibledit.anylanguagebible.Utilities.BibleVerse
+import org.bibledit.anylanguagebible.Utilities.Disk
+import org.bibledit.anylanguagebible.Utilities.Settings
+import org.bibledit.anylanguagebible.Utilities.bookName
 
 data class SearchHit(
     val id: Int, // Index of the verse in the module.
@@ -53,7 +61,9 @@ private class SearchResult(val hits: List<SearchHit>, val truncated: Boolean)
 
 private class Scored(val index: Int, val score: Int)
 
-class SearchModel : ViewModel() {
+class SearchModel(application: Application) : AndroidViewModel(application) {
+
+    private val appContext: Context get() = getApplication<Application>().applicationContext
 
     var query by mutableStateOf("")
     var hits by mutableStateOf<List<SearchHit>>(emptyList())
@@ -73,7 +83,7 @@ class SearchModel : ViewModel() {
     // Brings the results up to date with the query.
     // Does nothing if the cached results are still current.
     // Cancellation (a new keystroke) is handled by the coroutine machinery:
-    // the delay, the loading and the search loop all throw when cancelled.
+    // the delay, the loading and the search loop all throw when canceled.
     suspend fun refresh(volumeId: Int) {
 
         val phrase = normalize(query)
@@ -100,7 +110,7 @@ class SearchModel : ViewModel() {
         val original = this.original
         val maxHits = this.maxHits
 
-        // Search off the main thread, and stop early when cancelled.
+        // Search off the main thread, and stop early when canceled.
         val result = withContext(Dispatchers.Default) {
             search(folded, original, phrase, words, maxHits)
         }
@@ -113,7 +123,7 @@ class SearchModel : ViewModel() {
 
     private suspend fun load(volumeId: Int) {
         val (foldedVerses, originalVerses) = withContext(Dispatchers.IO) {
-            Pair(loadFoldedModuleJson(volumeId), loadModuleJson(volumeId))
+            Pair(Disk.loadFoldedModuleJson(volumeId), Disk.loadModuleJson(volumeId))
         }
         folded = foldedVerses
         original = originalVerses
@@ -125,21 +135,21 @@ class SearchModel : ViewModel() {
 
     // region Search
 
-    /** Case fold the query, and collapse white space. */
+    // Case fold the query, and collapse white space.
     private fun normalize(text: String): String =
         text.lowercase()
             .split(Regex("\\s+"))
             .filter { it.isNotEmpty() }
             .joinToString(" ")
 
-    /** The distinct words of an already normalized query. */
+    // The distinct words of an already normalized query.
     private fun words(phrase: String): List<String> =
         phrase
             .split(Regex("[^\\p{L}\\p{M}\\p{N}]+"))
             .filter { it.isNotEmpty() }
             .distinct()
 
-    /** Throws CancellationException when the calling coroutine is cancelled. */
+    // Throws CancellationException when the calling coroutine is canceled.
     private suspend fun search(
         folded: List<BibleVerse>,
         original: List<BibleVerse>,
@@ -312,20 +322,3 @@ private fun Placeholder(title: String, description: String) {
 private fun reference(hit: SearchHit): String =
     "${bookName(hit.book) ?: "Unknown"} ${hit.chapter}:${hit.verse}"
 
-
-// ---------------------------------------------------------------------------
-// PLACEHOLDERS: delete each of these once the real version exists in your
-// project (import it instead if it lives in another package).
-// ---------------------------------------------------------------------------
-
-data class BibleVerse(val book: Int, val chapter: Int, val verse: Int, val text: String)
-
-fun loadFoldedModuleJson(id: Int): List<BibleVerse> = emptyList() // TODO: port from Swift.
-
-fun loadModuleJson(id: Int): List<BibleVerse> = emptyList() // TODO: port from Swift.
-
-fun bookName(id: Int): String? = null // TODO: use the ported Utilities/Books.kt.
-
-object Settings {
-    fun getVolumeId(): Int = 0 // TODO: port from Swift Settings.
-}

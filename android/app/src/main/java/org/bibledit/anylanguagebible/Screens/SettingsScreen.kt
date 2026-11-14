@@ -44,8 +44,8 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.bibledit.anylanguagebible.R
+import org.bibledit.anylanguagebible.Utilities.Disk
 import org.bibledit.anylanguagebible.Utilities.Module
-import org.bibledit.anylanguagebible.Utilities.loadModulesJson
 import org.bibledit.anylanguagebible.Utilities.Download
 
 
@@ -57,7 +57,7 @@ fun SettingsScreen(
     val context = LocalContext.current.applicationContext
     var isLoading by remember { mutableStateOf(false) }
     var statusMessage by remember { mutableStateOf<String?>(null) }
-    var modules by remember { mutableStateOf(loadModulesJson(context)) }
+    var modules by remember { mutableStateOf(Disk.loadModulesJson()) }
     var searchText by rememberSaveable { mutableStateOf("") }
 
     val scope = rememberCoroutineScope()
@@ -94,7 +94,6 @@ fun SettingsScreen(
                 onClick = {
                     scope.launch {
                         Download.downloadModuleList(
-                            context = context,
                             setLoading = { isLoading = it },
                             setStatusMessage = { statusMessage = it },
                             setModules = { modules = it }
@@ -172,7 +171,6 @@ fun SettingsScreen(
                                     focusManager.clearFocus()
                                     scope.launch {
                                         val success = Download.downloadRemoteModule(
-                                            context = context,
                                             module = module,
                                             setLoading = { isLoading = it },
                                             setStatusMessage = { statusMessage = it }
