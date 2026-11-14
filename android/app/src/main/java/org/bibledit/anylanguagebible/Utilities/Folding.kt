@@ -10,13 +10,13 @@ import java.util.Locale
 import kotlin.collections.map
 
 // Returns a copy of the verses with the text case folded.
-fun caseFoldedVerses(verses: List<BibleVerse>): List<BibleVerse> =
+private fun caseFoldedVerses(verses: List<BibleVerse>): List<BibleVerse> =
     verses.map { verse ->
         verse.copy(text = verse.text.foldCase())
     }
 
 // Approximates Unicode case folding in a locale-independent way.
-fun String.foldCase(): String =
+private fun String.foldCase(): String =
     this.uppercase(Locale.ROOT).lowercase(Locale.ROOT)
 
 
