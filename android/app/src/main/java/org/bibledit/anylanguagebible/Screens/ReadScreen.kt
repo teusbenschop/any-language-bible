@@ -56,11 +56,6 @@ import org.bibledit.anylanguagebible.Utilities.bookName
 import org.bibledit.anylanguagebible.Utilities.getNearestBook
 import org.bibledit.anylanguagebible.Utilities.getVerses
 
-// Replaces the SwiftUI @EnvironmentObject. Pass one instance down from the parent.
-@Stable
-class VerseSelection {
-    var verseTexts: Map<Int, String> by mutableStateOf(emptyMap())
-}
 
 
 @Composable
