@@ -156,9 +156,10 @@ fun ReadScreen(
             delay(80)
             val index = loaded.indexOfFirst { it.verse == target }
             if (index >= 0) {
+                // Highlight while scrolling, like the Swift version.
+                highlightedVerse = target
                 // Negative offset puts the verse roughly in the middle of the screen.
                 listState.animateScrollToItem(index, -listState.layoutInfo.viewportSize.height / 2)
-                highlightedVerse = target
             }
         } else {
             // Restore the saved position, or start at the top of a new chapter.

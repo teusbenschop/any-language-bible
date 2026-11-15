@@ -46,6 +46,7 @@ import org.bibledit.anylanguagebible.Utilities.Disk
 import org.bibledit.anylanguagebible.ui.theme.AnyLanguageBibleTheme
 import org.bibledit.anylanguagebible.Utilities.Settings
 import androidx.compose.runtime.LaunchedEffect
+import org.bibledit.anylanguagebible.Utilities.bookName
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,8 +155,23 @@ fun MainScreen() {
                     verseSelection = verseSelection,
                     annotations = annotationStore
                 )
-                AppTab.Search -> SearchScreen()
-                AppTab.Bookmarks -> BookmarksScreen()
+                AppTab.Search -> SearchScreen(
+                    onSelect = { hit -> // Called on hit tap.
+                        book = bookName(hit.book) ?: ""
+                        chapter = hit.chapter
+                        focusedVerse = hit.verse
+                        selectedTab = AppTab.Read
+                    }
+                )
+                AppTab.Bookmarks -> BookmarksScreen(
+                    annotations = annotationStore,
+                    onSelect = { bookmark -> // Called on bookmark tap.
+                        book = bookmark.book
+                        chapter = bookmark.chapter
+                        focusedVerse = bookmark.firstVerse
+                        selectedTab = AppTab.Read
+                    }
+                )
                 AppTab.Settings -> SettingsScreen(
                     onSelect = { selectedTab = AppTab.Read })
             }

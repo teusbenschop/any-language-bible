@@ -262,7 +262,10 @@ fun SearchScreen(
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onSelect(hit) }
+                                .clickable {
+                                    focusManager.clearFocus()
+                                    onSelect(hit)
+                                }
                                 .padding(horizontal = 16.dp, vertical = 10.dp),
                             verticalArrangement = Arrangement.spacedBy(2.dp)
                         ) {
