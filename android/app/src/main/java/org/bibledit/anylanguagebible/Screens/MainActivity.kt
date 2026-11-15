@@ -152,7 +152,6 @@ fun MainScreen() {
                 AppTab.Settings -> SettingsScreen(
                     onSelect = { selectedTab = AppTab.Read })
             }
-
             if (selectedTab == AppTab.Read && verseSelection.isActive) {
                 VerseActionBar(
                     selection = verseSelection,
@@ -162,8 +161,6 @@ fun MainScreen() {
                     modifier = Modifier.align(Alignment.BottomCenter)
                 )
             }
-
-
         }
     }
 
