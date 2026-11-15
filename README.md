@@ -23,16 +23,16 @@ Any Language Bible
 
 ### Read tab
 * Header displays book and chapter.
-** Click to select chapter.
-** Back button to select book.
+  * Click to select chapter.
+  * Back button to select book.
 * Displays one verse per line.
 * Tap verse to select it.
-** Opens selection bar.
-*** Color marker.
-*** Copy verse to clipboard.
-*** Share verse to app.
-*** Bookmark verse.
-*** Close bar.
+  * Opens selection bar.
+    * Color marker.
+    * Copy verse to clipboard.
+    * Share verse to app.
+    * Bookmark verse.
+    * Close bar.
 * Tap another verse to add range selection.
 * Remembers scroll position per chapter.
 
@@ -41,12 +41,12 @@ Any Language Bible
 * Button to empty search box.
 * List search results by relevance.
 * Tap search result:
-** Switches to Read tab
-** Briefly highlights the verse.
+  * Switches to Read tab
+  * Briefly highlights the verse.
 
 ### Bookmarks tab
 * Lists bookmarks plus date
 * Slide bookmark to the left to delete it.
 * Tap bookmark:
-** Open Read tab.
-** Briefly highlights the verse.
+  * Open Read tab.
+  * Briefly highlights the verse.
