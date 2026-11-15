@@ -55,6 +55,7 @@ import org.bibledit.anylanguagebible.Utilities.bookId
 import org.bibledit.anylanguagebible.Utilities.bookName
 import org.bibledit.anylanguagebible.Utilities.getNearestBook
 import org.bibledit.anylanguagebible.Utilities.getVerses
+import org.bibledit.anylanguagebible.Utilities.AnnotationStore
 
 
 
@@ -69,6 +70,7 @@ fun ReadScreen(
     focusedVerse: Int?,
     onFocusedVerseChange: (Int?) -> Unit,
     verseSelection: VerseSelection,
+    annotations: AnnotationStore,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -204,7 +206,13 @@ fun ReadScreen(
                     onHorizontalDrag = { _, dragAmount -> total += dragAmount }
                 )
             },
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+        contentPadding = PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 12.dp,
+            // Leave room for the action bar, like safeAreaInset does in the Swift version.
+            bottom = if (verseSelection.isActive) 80.dp else 12.dp
+        ),
         verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         if (hasLoaded && verses.isEmpty()) {
@@ -215,7 +223,9 @@ fun ReadScreen(
                     verse = verse,
                     book = book,
                     chapter = chapter,
-                    highlighted = highlightedVerse == verse.verse
+                    highlighted = highlightedVerse == verse.verse,
+                    selection = verseSelection,
+                    annotations = annotations
                 )
             }
         }
@@ -250,6 +260,8 @@ private fun VerseRow(
     book: String,
     chapter: Int,
     highlighted: Boolean,
+    selection: VerseSelection,
+    annotations: AnnotationStore,
     fontSize: TextUnit = 20.sp
 ) {
     val highlight by animateColorAsState(
@@ -285,10 +297,18 @@ private fun VerseRow(
         modifier = Modifier
             .fillMaxWidth()
             .background(highlight, RoundedCornerShape(6.dp))
-            // Todo  fix: .verseInteraction(verse = verse.verse, book = book, chapter = chapter)
+            // Placed before the padding, so the tap area includes the padding, as in Swift.
+            .verseInteraction(
+                verse = verse.verse,
+                book = book,
+                chapter = chapter,
+                selection = selection,
+                annotations = annotations
+            )
             .padding(horizontal = 4.dp, vertical = 4.dp)
     )
 }
+
 
 // Stores the verse at the top for the key.
 // Keeps only the most recent couple of keys.

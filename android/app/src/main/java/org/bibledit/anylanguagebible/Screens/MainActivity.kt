@@ -45,6 +45,7 @@ import org.bibledit.anylanguagebible.Utilities.AnnotationStore
 import org.bibledit.anylanguagebible.Utilities.Disk
 import org.bibledit.anylanguagebible.ui.theme.AnyLanguageBibleTheme
 import org.bibledit.anylanguagebible.Utilities.Settings
+import androidx.compose.runtime.LaunchedEffect
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,6 +90,11 @@ fun MainScreen() {
     var showPassagePicker by rememberSaveable { mutableStateOf(false) }
 
     val annotationStore: AnnotationStore = viewModel()
+    // The verse selection belongs to one chapter on the Read tab.
+    // Drop it when the book, the chapter or the tab changes.
+    LaunchedEffect(book, chapter, selectedTab) {
+        verseSelection.clear()
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -145,7 +151,8 @@ fun MainScreen() {
                     onChapterChange = { chapter = it },
                     focusedVerse = focusedVerse,
                     onFocusedVerseChange = { focusedVerse = it },
-                    verseSelection = verseSelection
+                    verseSelection = verseSelection,
+                    annotations = annotationStore
                 )
                 AppTab.Search -> SearchScreen()
                 AppTab.Bookmarks -> BookmarksScreen()
